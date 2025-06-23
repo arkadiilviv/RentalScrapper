@@ -2,11 +2,18 @@ using System;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
+using System.Text.Json;
+using ImScoutAtWorker.Interfaces;
 
 namespace ImScoutAtWorker
 {
     public class RabbitMQClient
     {
+        private IMessageProcessor _messageProcessor;
+        public RabbitMQClient(IMessageProcessor messageProcessor)
+        {
+            _messageProcessor = messageProcessor;
+        }
         public async Task ReceiveMessages()
         {
             var factory = new ConnectionFactory
@@ -31,18 +38,20 @@ namespace ImScoutAtWorker
             var consumer = new AsyncEventingBasicConsumer(channel);
             consumer.ReceivedAsync += OnMessageReceivedAsync;
 
-            static Task OnMessageReceivedAsync(object sender, BasicDeliverEventArgs ea)
-            {
-                var body = ea.Body.ToArray();
-                var message = Encoding.UTF8.GetString(body);
-                Console.WriteLine($" [x] Received {message}");
-                return Task.CompletedTask;
-            }
-
             await channel.BasicConsumeAsync("imscoutat", autoAck: true, consumer: consumer);
 
             Console.WriteLine(" Press [enter] to exit.");
             Console.ReadLine();
+        }
+
+        private async Task<bool> OnMessageReceivedAsync(object sender, BasicDeliverEventArgs ea)
+        {
+            var body = ea.Body.ToArray();
+            var message = Encoding.UTF8.GetString(body);
+            var deserializedMessage = JsonSerializer.Deserialize<Models.RabbitMQMessage>(message);
+            await _messageProcessor.MessageReceivedHandler(deserializedMessage);
+            Console.WriteLine($" [x] Received {message}");
+            return true;
         }
     }
 }

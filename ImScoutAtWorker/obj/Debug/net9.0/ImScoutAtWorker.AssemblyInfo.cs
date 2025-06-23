@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ImScoutAtWorker")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+05eb0c37ed8ac253e70d427aecd76b8623e22d85")]
 [assembly: System.Reflection.AssemblyProductAttribute("ImScoutAtWorker")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ImScoutAtWorker")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

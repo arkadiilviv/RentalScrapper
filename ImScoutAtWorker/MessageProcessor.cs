@@ -7,13 +7,9 @@ namespace ImScoutAtWorker
 {
     public class MessageProcessor : IMessageProcessor
     {
-        public async Task MessageReceivedHandler(object model, BasicDeliverEventArgs ea)
+        public async Task MessageReceivedHandler(RabbitMQMessage model)
         {
-            // var rabbitMQMessage = JsonSerializer.Deserialize<RabbitMQMessage>(message);
-            // if (rabbitMQMessage != null)
-            // {
-            //     // Process the message
-            // }
+            var flat = await FlatParser.ParseAsync(model.Link);
         }
     }
 }

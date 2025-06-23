@@ -172,3 +172,5 @@ C:\Users\lvivh\Documents\RentalScrapper\ImScoutAtWorker\obj\Debug\net9.0\refint\
 C:\Users\lvivh\Documents\RentalScrapper\ImScoutAtWorker\obj\Debug\net9.0\ImScoutAtWorker.pdb
 C:\Users\lvivh\Documents\RentalScrapper\ImScoutAtWorker\obj\Debug\net9.0\ImScoutAtWorker.genruntimeconfig.cache
 C:\Users\lvivh\Documents\RentalScrapper\ImScoutAtWorker\obj\Debug\net9.0\ref\ImScoutAtWorker.dll
+C:\Users\lvivh\Documents\RentalScrapper\ImScoutAtWorker\bin\Debug\net9.0\HtmlAgilityPack.dll
+C:\Users\lvivh\Documents\RentalScrapper\ImScoutAtWorker\obj\Debug\net9.0\ImScoutAtWorker.sourcelink.json

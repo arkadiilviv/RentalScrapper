@@ -1,7 +1,9 @@
+using ImScoutAtWorker.Models;
+
 namespace ImScoutAtWorker.Interfaces
 {
     public interface IMessageProcessor
     {
-        public Task MessageReceivedHandler(object model, RabbitMQ.Client.Events.BasicDeliverEventArgs ea);
+        public Task MessageReceivedHandler(RabbitMQMessage model);
     }
 }
