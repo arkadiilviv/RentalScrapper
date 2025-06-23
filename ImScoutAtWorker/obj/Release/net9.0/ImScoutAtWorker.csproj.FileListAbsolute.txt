@@ -1,5 +1,0 @@
-C:\Users\lvivh\Documents\RentalScrapper\ImScoutAtWorker\obj\Release\net9.0\ImScoutAtWorker.csproj.AssemblyReference.cache
-C:\Users\lvivh\Documents\RentalScrapper\ImScoutAtWorker\obj\Release\net9.0\ImScoutAtWorker.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\lvivh\Documents\RentalScrapper\ImScoutAtWorker\obj\Release\net9.0\ImScoutAtWorker.AssemblyInfoInputs.cache
-C:\Users\lvivh\Documents\RentalScrapper\ImScoutAtWorker\obj\Release\net9.0\ImScoutAtWorker.AssemblyInfo.cs
-C:\Users\lvivh\Documents\RentalScrapper\ImScoutAtWorker\obj\Release\net9.0\ImScoutAtWorker.csproj.CoreCompileInputs.cache
