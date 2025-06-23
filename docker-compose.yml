@@ -1,0 +1,100 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1433:1433"
+    volumes:
+       - sqlserverdata:/var/opt/mssql
+       - /mssql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Z!uperPuperPassword123"
+      MSSQL_PID: "Developer"
+    restart: always
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -C -U sa -P "$$MSSQL_SA_PASSWORD" -Q "SELECT 1" -b -o /dev/null
+      interval: 1s
+      timeout: 45s
+      retries: 45
+      start_period: 3s
+  rabbitmq:
+    image: rabbitmq:4-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ~/.docker/rabbitmq/data:/var/lib/rabbitmq
+    restart: always
+    build:
+      args:
+        - "RABBITMQ_DEFAULT_USER=guest"
+        - "RABBITMQ_DEFAULT_PASS=guest"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+  imscoutat-main:
+    build: ./ImScoutAT
+    develop:
+      watch:
+        - action: rebuild
+          path: ./ImScoutAT
+          target: /app
+    environment:
+      - SCRAPE_URL=https://www.immobilienscout24.at/regional/oesterreich/immobilie-mieten/aktualitaet
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: always
+  imscoutat-wien:
+    build: ./ImScoutAT
+    develop:
+      watch:
+        - action: rebuild
+          path: ./ImScoutAT
+          target: /app
+    environment:
+      - SCRAPE_URL=https://www.immobilienscout24.at/regional/wien/immobilie-mieten/aktualitaet
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: always
+  imscoutat-salzburg:
+    build: ./ImScoutAT
+    develop:
+      watch:
+        - action: rebuild
+          path: ./ImScoutAT
+          target: /app
+    environment:
+      - SCRAPE_URL=https://www.immobilienscout24.at/regional/salzburg/immobilie-mieten/aktualitaet
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: always
+  imscoutat-worker:
+    build: ./ImScoutAtWorker
+    develop:
+      watch:
+        - action: rebuild
+          path: ./ImScoutAtWorker
+          target: /app
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    restart: always
+volumes:
+  sqlserverdata:
