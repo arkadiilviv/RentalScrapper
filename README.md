@@ -2,6 +2,8 @@
 
 A modern, containerized .NET solution for scraping real estate listings from [immobilienscout24.at](https://www.immobilienscout24.at/) and processing them asynchronously using RabbitMQ and SQL Server. Built for scalability, reliability, and fun! 🚀
 
+> **⚠️ This is a working MVP. Data may be parsed incorrectly or incompletely. Use at your own risk!**
+
 ---
 
 ## 📦 Features

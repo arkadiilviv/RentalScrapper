@@ -17,6 +17,8 @@ public static class SystemInfo
         RABBIT_USER = configuration.GetValue("RABBITMQ_USER", string.Empty);
         RABBIT_PASSWORD = configuration.GetValue("RABBITMQ_PASSWORD", string.Empty);
 
+        CITY = Environment.GetEnvironmentVariable("CITY")
+        ?? configuration.GetValue("CITY", string.Empty);
     }
     public static int DelaySeconds = 5;
     public static int RetryCount = 3;
@@ -26,4 +28,6 @@ public static class SystemInfo
     public static string RABBIT_USER = string.Empty;
     public static string RABBIT_PASSWORD = string.Empty;
     public static string RabbitMQPort = string.Empty;
+    public static string CITY = string.Empty;
+
 }

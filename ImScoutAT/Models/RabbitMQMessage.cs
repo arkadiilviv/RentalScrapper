@@ -8,5 +8,6 @@ public class RabbitMQMessage
     public string Link { get; set; }
     public string Price { get; set; }
     public string Area { get; set; }
+    public string City { get; set; }
     public override string ToString() => JsonSerializer.Serialize(this);
 }

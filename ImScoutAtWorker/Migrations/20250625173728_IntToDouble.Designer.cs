@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ImScoutAtWorker.Migrations
 {
     [DbContext(typeof(RentalContext))]
-    partial class RentalContextModelSnapshot : ModelSnapshot
+    [Migration("20250625173728_IntToDouble")]
+    partial class IntToDouble
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,13 +56,10 @@ namespace ImScoutAtWorker.Migrations
                         .HasColumnType("nvarchar(1000)")
                         .HasColumnName("description");
 
-                    b.Property<string>("Hash")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)")
-                        .HasColumnName("hash");
-
                     b.Property<string>("ImScoutId")
-                        .HasColumnType("nvarchar(max)")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("im_scout_id");
 
                     b.Property<string>("PostalCode")
@@ -88,9 +88,6 @@ namespace ImScoutAtWorker.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_flats");
-
-                    b.HasAlternateKey("Hash")
-                        .HasName("ak_flats_hash");
 
                     b.ToTable("flats", (string)null);
                 });

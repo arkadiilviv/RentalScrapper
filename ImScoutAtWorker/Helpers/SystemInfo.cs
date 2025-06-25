@@ -11,10 +11,18 @@ public static class SystemInfo
         RABBIT_USER = configuration.GetValue("RABBITMQ_USER", string.Empty);
         RABBIT_PASSWORD = configuration.GetValue("RABBITMQ_PASSWORD", string.Empty);
 
+        SQL_CONNECTION_STRING = Environment.GetEnvironmentVariable("SQL_CONNECTION_STRING")
+        ?? configuration.GetValue("SQL_CONNECTION_STRING", string.Empty);
+
+        PARSER_URL = Environment.GetEnvironmentVariable("PARSER_URL")
+        ?? configuration.GetValue("PARSER_URL", string.Empty);
+
     }
     public static string RabbitMQHost = string.Empty;
     public static string RabbitMQPort = string.Empty;
     public static DateTime StartTime = DateTime.Now;
     public static string RABBIT_USER = string.Empty;
     public static string RABBIT_PASSWORD = string.Empty;
+    public static string SQL_CONNECTION_STRING = string.Empty;
+    public static string PARSER_URL = string.Empty;
 }

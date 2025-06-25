@@ -23,25 +23,28 @@ namespace ImScoutAtWorker
                 UserName = SystemInfo.RABBIT_USER,
                 Password = SystemInfo.RABBIT_PASSWORD
             };
+            try
+            {
+                using var connection = await factory.CreateConnectionAsync();
+                using var channel = await connection.CreateChannelAsync();
 
-            using var connection = await factory.CreateConnectionAsync();
-            using var channel = await connection.CreateChannelAsync();
+                await channel.QueueDeclareAsync(queue: "imscoutat",
+                                                durable: false,
+                                                exclusive: false,
+                                                autoDelete: false,
+                                                arguments: null);
 
-            await channel.QueueDeclareAsync(queue: "imscoutat",
-                                            durable: false,
-                                            exclusive: false,
-                                            autoDelete: false,
-                                            arguments: null);
+                Console.WriteLine(" [*] Waiting for messages.");
 
-            Console.WriteLine(" [*] Waiting for messages.");
+                var consumer = new AsyncEventingBasicConsumer(channel);
+                consumer.ReceivedAsync += OnMessageReceivedAsync;
 
-            var consumer = new AsyncEventingBasicConsumer(channel);
-            consumer.ReceivedAsync += OnMessageReceivedAsync;
-
-            await channel.BasicConsumeAsync("imscoutat", autoAck: true, consumer: consumer);
-
-            Console.WriteLine(" Press [enter] to exit.");
-            Console.ReadLine();
+                await channel.BasicConsumeAsync("imscoutat", autoAck: true, consumer: consumer);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error connecting to RabbitMQ: {ex.Message}");
+            }
         }
 
         private async Task<bool> OnMessageReceivedAsync(object sender, BasicDeliverEventArgs ea)

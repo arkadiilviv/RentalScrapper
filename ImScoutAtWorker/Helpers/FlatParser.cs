@@ -1,19 +1,21 @@
 using ImScoutAtWorker.Models;
 using System.Globalization;
 using HtmlAgilityPack;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 public static class FlatParser
 {
-    public static async Task<Flat> ParseAsync(string url)
+    public static async Task<Flat> ParseAsync(RabbitMQMessage model)
     {
         using var http = new HttpClient();
-        var html = await http.GetStringAsync(url);
+        var html = await http.GetStringAsync(model.Link);
         var doc = new HtmlDocument();
         doc.LoadHtml(html);
 
         var flat = new Flat
         {
-            Url = url,
-            CreatedAt = DateTime.UtcNow
+            Url = model.Link,
+            CreatedAt = DateTime.UtcNow,
+            Hash = model.Hash
         };
 
         // ImScout ID from cwId field in JSON embedded
@@ -36,45 +38,80 @@ public static class FlatParser
                                                .Replace(".", "")
                                                .Replace(",", ".")
                                                .Trim();
-            if (decimal.TryParse(priceText, NumberStyles.Any, CultureInfo.InvariantCulture, out var p))
-                flat.Price = p;
+            if (decimal.TryParse(priceText, NumberStyles.Any, CultureInfo.InvariantCulture, out var price))
+                flat.Price = price;
+            else if (decimal.TryParse(model.Price, NumberStyles.Any, CultureInfo.InvariantCulture, out var modelPrice))
+                flat.Price = modelPrice;
         }
 
         // Rooms & Area
         var info = doc.DocumentNode.SelectSingleNode("//*[contains(text(),'m²') and contains(text(),'Zimmer')]");
-        if (info != null)
+        try
         {
-            var parts = info.InnerText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (var part in parts)
+            if (info != null)
             {
-                if (part.EndsWith("m²") && double.TryParse(part.Replace("m²", "").Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out var a))
-                    flat.Area = a;
-                if (part.EndsWith("Zimmer") && int.TryParse(part.Replace("Zimmer", "").Trim(), out var r))
-                    flat.Rooms = r;
+                var parts = info.InnerText.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                for (int i = 0; i < parts.Length; i++)
+                {
+                    var part = parts[i];
+                    if (part == "m²")
+                    {
+                        if (double.TryParse(parts[i - 1], NumberStyles.Any, CultureInfo.InvariantCulture, out var area))
+                        {
+                            flat.Area = area;
+                        }
+                        else if (double.TryParse(model.Area.Replace("m²", ""), NumberStyles.Any, CultureInfo.InvariantCulture, out var modelArea))
+                            flat.Area = modelArea;
+                    }
+                    else if (part == "Zimmer")
+                    {
+                        if (double.TryParse(parts[i - 1], NumberStyles.Any, CultureInfo.InvariantCulture, out var rooms))
+                        {
+                            flat.Rooms = rooms;
+                        }
+                    }
+                }
             }
         }
+        catch (Exception)
+        {
+            // Skip parsing Rooms and Area
+        }
+
 
         // Description
         var descNode = doc.DocumentNode.SelectSingleNode("//h3[contains(text(),'Beschreibung')]/following-sibling::p");
         if (descNode != null)
             flat.Description = descNode.InnerText.Trim();
 
-        // Address / Postal code / City
-        var addrNode = doc.DocumentNode.SelectSingleNode("//*[contains(text(),'Adresse anfragen')]/preceding-sibling::div");
-        if (addrNode != null)
+        // City
+        var cityNode = doc.DocumentNode.SelectSingleNode("//div[contains(@class,'expose__address')]");
+        if (cityNode != null)
         {
-            var lines = addrNode.InnerText.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            var addrText = cityNode.InnerText.Trim();
+            var lines = addrText.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(l => l.Trim()).Where(l => !string.IsNullOrWhiteSpace(l)).ToArray();
             if (lines.Length >= 2)
             {
-                var pcodeCity = lines[^1].Trim();
+                var pcodeCity = lines[1];
                 var parts2 = pcodeCity.Split(' ', 2);
                 if (parts2.Length == 2)
                 {
-                    flat.PostalCode = parts2[0];
                     flat.City = parts2[1];
                 }
-                flat.Address = lines[0].Trim();
+                else
+                {
+                    flat.City = model.City;
+                }
             }
+            else
+            {
+                flat.City = model.City;
+            }
+        }
+        if (string.IsNullOrWhiteSpace(flat.City))
+        {
+            flat.City = model.City;
         }
 
         return flat;

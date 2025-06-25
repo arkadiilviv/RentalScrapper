@@ -4,7 +4,7 @@ using ImScoutAtWorker.Models;
 public class RentalContext : DbContext
 {
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    => optionsBuilder.UseSqlServer("Server=localhost,1433;User Id=sa;Password=Z!uperPuperPassword123;Database=AustriaRentals;Encrypt=false")
+    => optionsBuilder.UseSqlServer(SystemInfo.SQL_CONNECTION_STRING)
                      .UseSnakeCaseNamingConvention()
                      .LogTo(Console.WriteLine);
 
@@ -13,10 +13,7 @@ public class RentalContext : DbContext
         modelBuilder.Entity<Flat>(entity =>
         {
             entity.HasKey(b => b.Id);
-
-            entity.Property(b => b.ImScoutId)
-                .IsRequired()
-                .HasMaxLength(255);
+            entity.HasAlternateKey(b => b.Hash);
 
             entity.Property(b => b.Description)
                 .HasMaxLength(1000)

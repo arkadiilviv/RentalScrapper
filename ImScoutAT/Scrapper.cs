@@ -126,6 +126,7 @@ namespace ImScoutAT
             var areaNode = node.SelectSingleNode(".//li[@class=\"Text-color--gray-NvY Text-size--s-wTL \"]");
             item.Area = areaNode?.InnerText ?? string.Empty;
 
+            item.City = SystemInfo.CITY;
             return item;
         }
 
